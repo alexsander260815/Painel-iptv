@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel IPTV — Gestão de Clientes</title>
+<meta name="theme-color" content="#0B0E14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Painel IPTV">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E14;
+    --surface:#12161F;
+    --surface2:#1A2030;
+    --border:#262C3B;
+    --text:#E9ECF1;
+    --muted:#8B93A7;
+    --muted2:#5C6478;
+    --green:#19D397;
+    --amber:#FFB020;
+    --red:#FF5470;
+    --blue:#4D9FFF;
+    --radius:14px;
+    --radius-sm:9px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:80px;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  .wrap{max-width:880px;margin:0 auto;padding:20px 16px 40px;}
+
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:10px;}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+  .brand-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(25,211,151,.6);animation:pulse 2s infinite;flex-shrink:0;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(25,211,151,.5);}
+    70%{box-shadow:0 0 0 7px rgba(25,211,151,0);}
+    100%{box-shadow:0 0 0 0 rgba(25,211,151,0);}
+  }
+  .brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-0.2px;white-space:nowrap;}
+  .brand span{display:block;font-size:11.5px;color:var(--muted2);font-weight:400;font-family:'Inter',sans-serif;margin-top:1px;white-space:nowrap;}
+  .header-btns{display:flex;gap:8px;flex-shrink:0;}
+  .btn-add{
+    background:var(--green);color:#04231A;border:none;border-radius:999px;
+    padding:10px 16px;font-weight:700;font-size:13.5px;cursor:pointer;
+    display:flex;align-items:center;gap:6px;white-space:nowrap;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-add:active{transform:scale(.97);}
+  .btn-gear{
+    background:var(--surface);border:1px solid var(--border);color:var(--muted);
+    width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+    position:relative;
+  }
+  .btn-gear:active{transform:scale(.92);}
+  .btn-gear.notif-on{color:var(--green);border-color:rgba(25,211,151,.3);background:rgba(25,211,151,.08);}
+  .notif-dot{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--amber);}
+  .alert-banner{
+    display:flex;align-items:center;gap:10px;background:rgba(255,84,112,.1);border:1px solid rgba(255,84,112,.3);
+    border-radius:var(--radius-sm);padding:11px 13px;margin-bottom:14px;font-size:13px;color:var(--text);
+  }
+  .alert-banner.warn{background:rgba(255,176,32,.1);border-color:rgba(255,176,32,.3);}
+  .alert-banner svg{flex-shrink:0;color:var(--red);}
+  .alert-banner.warn svg{color:var(--amber);}
+  .alert-banner b{font-weight:600;}
+
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+  @media (min-width:480px){.stats{grid-template-columns:repeat(4,1fr);}}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 10px;text-align:left;}
+  .stat .num{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;line-height:1;}
+  .stat .lbl{font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.3;}
+  .stat.s-green .num{color:var(--green);}
+  .stat.s-amber .num{color:var(--amber);}
+  .stat.s-red .num{color:var(--red);}
+  .revenue{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:11px 13px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .revenue .lbl{font-size:12px;color:var(--muted);}
+  .revenue .num{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--blue);}
+
+  .toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+  .search{
+    flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);
+    border-radius:999px;padding:9px 14px;color:var(--text);font-size:13.5px;outline:none;
+    font-family:'Inter',sans-serif;
+  }
+  .search::placeholder{color:var(--muted2);}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{
+    background:var(--surface);border:1px solid var(--border);color:var(--muted);
+    border-radius:999px;padding:8px 13px;font-size:12.5px;cursor:pointer;font-weight:500;
+    white-space:nowrap;font-family:'Inter',sans-serif;
+  }
+  .chip.active{background:var(--text);color:var(--bg);border-color:var(--text);}
+
+  .list{display:flex;flex-direction:column;gap:10px;}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px;display:flex;align-items:center;gap:13px;
+  }
+  .ring{
+    width:50px;height:50px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .ring .hole{
+    width:40px;height:40px;border-radius:50%;background:var(--surface);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+  }
+  .ring .hole b{font-size:13px;line-height:1;font-family:'Space Grotesk',sans-serif;}
+  .ring .hole small{font-size:7.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.3px;}
+
+  .info{flex:1;min-width:0;}
+  .info .nome{font-weight:600;font-size:14.5px;margin:0 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .info .meta{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .badge{font-size:10.5px;padding:2px 7px;border-radius:6px;font-weight:600;white-space:nowrap;}
+  .badge.app{background:var(--surface2);color:var(--muted);}
+  .badge.preco{background:rgba(77,159,255,.12);color:var(--blue);}
+  .badge.status{display:inline-flex;align-items:center;gap:4px;}
+  .b-ativo{background:rgba(25,211,151,.12);color:var(--green);}
+  .b-vencendo{background:rgba(255,176,32,.12);color:var(--amber);}
+  .b-hoje{background:rgba(255,176,32,.18);color:var(--amber);}
+  .b-vencido{background:rgba(255,84,112,.12);color:var(--red);}
+
+  .actions{display:flex;gap:6px;flex-shrink:0;}
+  .iconbtn{
+    width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex-shrink:0;
+  }
+  .iconbtn.wa{background:rgba(25,211,151,.12);border-color:rgba(25,211,151,.3);color:var(--green);}
+  .iconbtn:active{transform:scale(.92);}
+  .iconbtn svg{width:17px;height:17px;}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);}
+  .empty svg{width:46px;height:46px;color:var(--muted2);margin-bottom:10px;}
+  .empty p{margin:4px 0;font-size:13.5px;}
+
+  .overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;
+    z-index:50;
+  }
+  .overlay.show{display:flex;}
+  @media (min-width:560px){.overlay{align-items:center;}}
+  .modal{
+    background:var(--surface);width:100%;max-width:480px;border-radius:18px 18px 0 0;
+    max-height:92vh;overflow-y:auto;padding:20px;border:1px solid var(--border);
+  }
+  @media (min-width:560px){.modal{border-radius:18px;}}
+  .modal h2{font-size:17px;margin:0 0 16px;font-weight:600;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:500;}
+  .field input,.field select{
+    width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:10px 12px;color:var(--text);font-size:14px;outline:none;font-family:'Inter',sans-serif;
+  }
+  .field input:focus,.field select:focus{border-color:var(--green);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .modal-actions{display:flex;gap:8px;margin-top:18px;}
+  .btn{flex:1;border:none;border-radius:999px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn-primary{background:var(--green);color:#04231A;}
+  .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+  .btn-danger{background:rgba(255,84,112,.12);color:var(--red);border:1px solid rgba(255,84,112,.3);}
+  .hidden{display:none !important;}
+
+  .sheet-opt{
+    display:flex;align-items:center;gap:11px;padding:12px;background:var(--surface2);border:1px solid var(--border);
+    border-radius:var(--radius-sm);margin-bottom:8px;cursor:pointer;
+  }
+  .sheet-opt:active{transform:scale(.98);}
+  .sheet-opt .sheet-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sheet-opt .sheet-txt b{display:block;font-size:13.5px;}
+  .sheet-opt .sheet-txt span{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;}
+
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    padding:11px 18px;border-radius:999px;font-size:13px;opacity:0;transition:.25s;z-index:100;
+    display:flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast .dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+  .loading{text-align:center;padding:60px 0;color:var(--muted);font-size:13px;}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--surface2);border-radius:999px;padding:3px;}
+  .tab{flex:1;text-align:center;padding:8px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);}
+  .tab.active{background:var(--text);color:var(--bg);}
+
+  .mgmt-item{
+    display:flex;align-items:center;justify-content:space-between;background:var(--surface2);
+    border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:7px;
+  }
+  .mgmt-item .nome{font-size:13.5px;font-weight:500;}
+  .mgmt-item .sub{font-size:11.5px;color:var(--muted);margin-top:1px;}
+  .mgmt-del{width:28px;height:28px;border-radius:50%;background:rgba(255,84,112,.1);color:var(--red);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .mgmt-add{border-top:1px solid var(--border);margin-top:10px;padding-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div>
+        <h1>Painel IPTV</h1>
+        <span>Gestão de clientes e vencimentos</span>
+      </div>
+    </div>
+    <div class="header-btns">
+      <div class="btn-gear" id="btnNotif" aria-label="Ativar notificações">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+        <div class="notif-dot hidden" id="notifDot"></div>
+      </div>
+      <div class="btn-gear" id="btnConfig" aria-label="Gerenciar apps e planos">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 14.4 1.65 1.65 0 003.5 13H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </div>
+      <button class="btn-add" id="btnNovo">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        Cliente
+      </button>
+    </div>
+  </div>
+
+  <div id="alertBanner"></div>
+  <div class="stats" id="stats"></div>
+  <div class="revenue" id="revenue"></div>
+
+  <div class="toolbar">
+    <input class="search" id="busca" placeholder="Buscar por nome ou app...">
+  </div>
+  <div class="chips" id="chips" style="margin-bottom:16px;"></div>
+
+  <div id="listaWrap"><div class="loading">Carregando seus clientes...</div></div>
+</div>
+
+<!-- FORM CLIENTE -->
+<div class="overlay" id="overlayForm">
+  <div class="modal">
+    <h2 id="formTitulo">Novo cliente</h2>
+    <div class="field">
+      <label>Nome do cliente</label>
+      <input id="fNome" placeholder="Ex: João Silva">
+    </div>
+    <div class="field">
+      <label>WhatsApp (com DDD)</label>
+      <input id="fWhats" placeholder="Ex: 11999998888" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label>App utilizado</label>
+      <select id="fApp"></select>
+    </div>
+    <div id="fAppCustomWrap" class="field hidden">
+      <label>Nome do app</label>
+      <input id="fAppCustom" placeholder="Digite o nome do app">
+    </div>
+    <div class="field">
+      <label>Plano</label>
+      <select id="fPlano"></select>
+    </div>
+    <div class="row2" id="fCustomWrap">
+      <div class="field">
+        <label>Dias</label>
+        <input id="fDias" type="number" min="1" value="30">
+      </div>
+      <div class="field">
+        <label>Valor (R$)</label>
+        <input id="fPreco" type="number" min="0" step="0.01" value="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>Data de vencimento</label>
+      <input id="fVenc" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnCancelarForm">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarForm">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP -->
+<div class="overlay" id="overlayWA">
+  <div class="modal">
+    <h2>Enviar mensagem</h2>
+    <div id="waOpts"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnCancelarWA">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- RENOVAR -->
+<div class="overlay" id="overlayRenovar">
+  <div class="modal">
+    <h2>Renovar plano</h2>
+    <div class="field">
+      <label>Cliente</label>
+      <input id="rNomeView" disabled>
+    </div>
+    <div class="field">
+      <label>Plano</label>
+      <select id="rPlano"></select>
+    </div>
+    <div class="row2" id="rCustomWrap">
+      <div class="field">
+        <label>Dias</label>
+        <input id="rDias" type="number" min="1">
+      </div>
+      <div class="field">
+        <label>Valor (R$)</label>
+        <input id="rPreco" type="number" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="field">
+      <label>Nova data de vencimento</label>
+      <input id="rVenc" type="date">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnCancelarRenovar">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmarRenovar">Confirmar renovação</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXCLUIR CLIENTE -->
+<div class="overlay" id="overlayExcluir">
+  <div class="modal">
+    <h2>Excluir cliente</h2>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:-8px;">Tem certeza que deseja excluir <b id="excluirNome" style="color:var(--text);"></b>? Essa ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnCancelarExcluir">Cancelar</button>
+      <button class="btn btn-danger" id="btnConfirmarExcluir">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG: APPS E PLANOS -->
+<div class="overlay" id="overlayConfig">
+  <div class="modal">
+    <h2>Gerenciar apps e planos</h2>
+    <div class="tabs">
+      <div class="tab active" data-tab="apps">Apps</div>
+      <div class="tab" data-tab="planos">Planos</div>
+    </div>
+
+    <div id="tabApps">
+      <div id="listaAppsConfig"></div>
+      <div class="mgmt-add">
+        <div class="field">
+          <label>Novo app</label>
+          <input id="novoAppNome" placeholder="Ex: Nome do app">
+        </div>
+        <button class="btn btn-primary" style="width:100%" id="btnAddApp">Adicionar app</button>
+      </div>
+    </div>
+
+    <div id="tabPlanos" class="hidden">
+      <div id="listaPlanosConfig"></div>
+      <div class="mgmt-add">
+        <div class="field">
+          <label>Nome do plano</label>
+          <input id="novoPlanoNome" placeholder="Ex: Mensal">
+        </div>
+        <div class="row3">
+          <div class="field">
+            <label>Dias</label>
+            <input id="novoPlanoDias" type="number" min="1" value="30">
+          </div>
+          <div class="field">
+            <label>Valor (R$)</label>
+            <input id="novoPlanoPreco" type="number" min="0" step="0.01" value="0">
+          </div>
+          <div class="field">
+            <label>Telas</label>
+            <select id="novoPlanoTelas">
+              <option value="1">1 tela</option>
+              <option value="2">2 telas</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%" id="btnAddPlano">Adicionar plano</button>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="btnFecharConfig">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="dot"></div><span id="toastMsg"></span></div>
+
+<script>
+const APPS_DEFAULT = [
+  "Ninja TV Premium","Megacine TV","Pulse TV","Lion TV","Lumigo Premium","AXS TV",
+  "Arena Kombat TV","Infinity TV","Kombat Max TV","AJX TV","Dragon TV","Canarinho TV","UniTV"
+];
+
+const PLANOS_DEFAULT = [
+  {nome:"Mensal", dias:30, preco:24.99, telas:1},
+  {nome:"Mensal", dias:30, preco:35.00, telas:1},
+  {nome:"Mensal", dias:30, preco:40.00, telas:1},
+  {nome:"Trimestral", dias:90, preco:64.99, telas:1},
+  {nome:"Trimestral", dias:90, preco:90.00, telas:1},
+  {nome:"Trimestral", dias:90, preco:110.00, telas:1},
+  {nome:"Semestral", dias:180, preco:119.99, telas:1},
+  {nome:"Anual", dias:365, preco:224.99, telas:1},
+  {nome:"Mensal", dias:30, preco:44.99, telas:2},
+  {nome:"Trimestral", dias:90, preco:119.99, telas:2},
+  {nome:"Semestral", dias:180, preco:224.99, telas:2},
+  {nome:"Anual", dias:365, preco:359.99, telas:2},
+];
+
+let clientes = [];
+let apps = [];
+let planos = [];
+let filtroAtual = 'todos';
+let termoBusca = '';
+let editandoId = null;
+let renovarClienteAtual = null;
+let excluirClienteAtual = null;
+
+function hojeISO(){
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d.toISOString().slice(0,10);
+}
+function somaDias(dataISO, dias){
+  const d = new Date(dataISO+'T00:00:00');
+  d.setDate(d.getDate()+dias);
+  return d.toISOString().slice(0,10);
+}
+function diasEntre(dataISO){
+  const hoje = new Date(hojeISO()+'T00:00:00');
+  const venc = new Date(dataISO+'T00:00:00');
+  return Math.round((venc-hoje)/86400000);
+}
+function formatarData(iso){
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function formatarReal(v){
+  return 'R$ ' + Number(v||0).toFixed(2).replace('.',',');
+}
+function statusDe(dias){
+  if(dias < 0) return 'vencido';
+  if(dias === 0) return 'hoje';
+  if(dias <= 3) return 'vencendo';
+  return 'ativo';
+}
+function labelStatus(status, dias){
+  if(status==='vencido') return `Venceu há ${Math.abs(dias)}d`;
+  if(status==='hoje') return 'Vence hoje';
+  if(status==='vencendo') return `Vence em ${dias}d`;
+  return `Ativo · ${dias}d`;
+}
+function corStatus(status){
+  if(status==='vencido') return 'var(--red)';
+  if(status==='hoje'||status==='vencendo') return 'var(--amber)';
+  return 'var(--green)';
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function planoId(p){ return `${p.nome}__${p.dias}__${p.preco}__${p.telas}`; }
+function planoLabel(p){
+  return `${p.nome} · ${p.telas===2?'2 telas':'1 tela'} · ${formatarReal(p.preco)} (${p.dias}d)`;
+}
+
+/* ---------- STORAGE ---------- */
+async function carregarDados(){
+  try{
+    const v = localStorage.getItem('iptv-clientes');
+    clientes = v ? JSON.parse(v) : [];
+  }catch(e){ clientes = []; }
+
+  try{
+    const v2 = localStorage.getItem('iptv-apps-list');
+    apps = v2 ? JSON.parse(v2) : null;
+  }catch(e){ apps = null; }
+  if(!apps){ apps = [...APPS_DEFAULT]; await salvarApps(); }
+
+  try{
+    const v3 = localStorage.getItem('iptv-planos-list');
+    planos = v3 ? JSON.parse(v3) : null;
+  }catch(e){ planos = null; }
+  if(!planos){ planos = [...PLANOS_DEFAULT]; await salvarPlanos(); }
+
+  render();
+  atualizarBtnNotif();
+  dispararNotificacaoResumo();
+}
+async function salvarClientes(){
+  try{ localStorage.setItem('iptv-clientes', JSON.stringify(clientes)); }
+  catch(e){ showToast('Erro ao salvar. Tente novamente.'); }
+}
+async function salvarApps(){
+  try{ localStorage.setItem('iptv-apps-list', JSON.stringify(apps)); }
+  catch(e){ showToast('Erro ao salvar apps.'); }
+}
+async function salvarPlanos(){
+  try{ localStorage.setItem('iptv-planos-list', JSON.stringify(planos)); }
+  catch(e){ showToast('Erro ao salvar planos.'); }
+}
+
+function popularSelectApps(sel){
+  sel.innerHTML = apps.map(a=>`<option value="${a}">${a}</option>`).join('') + `<option value="Outro">Outro (digitar)</option>`;
+}
+function popularSelectPlanos(sel){
+  sel.innerHTML = planos.map(p=>`<option value="${planoId(p)}">${planoLabel(p)}</option>`).join('') + `<option value="custom">Personalizado</option>`;
+}
+
+/* ---------- NOTIFICAÇÕES ---------- */
+function atualizarBtnNotif(){
+  const btn = document.getElementById('btnNotif');
+  const dot = document.getElementById('notifDot');
+  const ativo = ('Notification' in window) && Notification.permission === 'granted';
+  btn.classList.toggle('notif-on', ativo);
+  dot.classList.toggle('hidden', ativo);
+}
+document.getElementById('btnNotif').onclick = async ()=>{
+  if(!('Notification' in window)){
+    showToast('Seu navegador não suporta notificações.');
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    showToast('Notificações já estão ativas. Vão disparar sempre que você abrir o painel.');
+    return;
+  }
+  if(Notification.permission === 'denied'){
+    showToast('Notificações bloqueadas. Ative nas permissões do navegador para este site.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  atualizarBtnNotif();
+  if(perm === 'granted'){
+    showToast('Notificações ativadas!');
+    dispararNotificacaoResumo();
+  } else {
+    showToast('Você não ativou as notificações.');
+  }
+};
+
+function dispararNotificacaoResumo(){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const lista = clientes.map(c=>({...c, _dias: diasEntre(c.vencimento), _status: statusDe(diasEntre(c.vencimento))}));
+  const vencidos = lista.filter(c=>c._status==='vencido');
+  const hojeArr = lista.filter(c=>c._status==='hoje');
+  const vencendo = lista.filter(c=>c._status==='vencendo');
+  if(vencidos.length===0 && hojeArr.length===0 && vencendo.length===0) return;
+
+  const partes = [];
+  if(vencidos.length) partes.push(`${vencidos.length} vencido${vencidos.length>1?'s':''}`);
+  if(hojeArr.length) partes.push(`${hojeArr.length} vencendo hoje`);
+  if(vencendo.length) partes.push(`${vencendo.length} vencendo em até 3 dias`);
+
+  const nomes = [...vencidos, ...hojeArr, ...vencendo].slice(0,3).map(c=>c.nome.split(' ')[0]).join(', ');
+
+  try{
+    const n = new Notification('Painel IPTV — clientes precisam de atenção', {
+      body: `${partes.join(' · ')}.\n${nomes}${(vencidos.length+hojeArr.length+vencendo.length)>3?' e outros':''}.`,
+      tag: 'iptv-resumo-'+hojeISO()
+    });
+    n.onclick = ()=>{ window.focus(); n.close(); };
+  }catch(e){}
+}
+
+function renderAlertBanner(){
+  const lista = clientes.map(c=>({...c, _dias: diasEntre(c.vencimento), _status: statusDe(diasEntre(c.vencimento))}));
+  const vencidos = lista.filter(c=>c._status==='vencido').length;
+  const urgentes = lista.filter(c=>c._status==='hoje'||c._status==='vencendo').length;
+  const wrap = document.getElementById('alertBanner');
+  if(vencidos===0 && urgentes===0){ wrap.innerHTML=''; return; }
+  if(vencidos>0){
+    wrap.innerHTML = `<div class="alert-banner">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.86L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.86a2 2 0 00-3.4 0z"/></svg>
+      <span><b>${vencidos}</b> cliente${vencidos>1?'s':''} com plano vencido${urgentes>0?` e <b>${urgentes}</b> vencendo em breve`:''}.</span>
+    </div>`;
+  } else {
+    wrap.innerHTML = `<div class="alert-banner warn">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/></svg>
+      <span><b>${urgentes}</b> cliente${urgentes>1?'s':''} vencendo nos próximos dias. Bom momento pra mandar o aviso.</span>
+    </div>`;
+  }
+}
+
+/* ---------- RENDER PRINCIPAL ---------- */
+function render(){
+  renderStats();
+  renderRevenue();
+  renderAlertBanner();
+  renderChips();
+  renderLista();
+}
+function renderStats(){
+  const ativos = clientes.filter(c=>statusDe(diasEntre(c.vencimento))==='ativo').length;
+  const vencendo = clientes.filter(c=>{const s=statusDe(diasEntre(c.vencimento));return s==='vencendo'||s==='hoje';}).length;
+  const vencidos = clientes.filter(c=>statusDe(diasEntre(c.vencimento))==='vencido').length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="num">${clientes.length}</div><div class="lbl">Total de clientes</div></div>
+    <div class="stat s-green"><div class="num">${ativos}</div><div class="lbl">Ativos</div></div>
+    <div class="stat s-amber"><div class="num">${vencendo}</div><div class="lbl">Vencendo (≤3d)</div></div>
+    <div class="stat s-red"><div class="num">${vencidos}</div><div class="lbl">Vencidos</div></div>
+  `;
+}
+function renderRevenue(){
+  const hoje = new Date();
+  const mes = hoje.getMonth(), ano = hoje.getFullYear();
+  const total = clientes.filter(c=>{
+    const d = new Date(c.vencimento+'T00:00:00');
+    return d.getMonth()===mes && d.getFullYear()===ano;
+  }).reduce((s,c)=>s+(c.planoPreco||0),0);
+  document.getElementById('revenue').innerHTML = `
+    <span class="lbl">Receita prevista de renovações este mês</span>
+    <span class="num">${formatarReal(total)}</span>
+  `;
+}
+function renderChips(){
+  const opts = [
+    {k:'todos', l:'Todos'},
+    {k:'vencendo', l:'Vencendo'},
+    {k:'vencido', l:'Vencidos'},
+    {k:'ativo', l:'Ativos'},
+  ];
+  document.getElementById('chips').innerHTML = opts.map(o=>
+    `<div class="chip ${filtroAtual===o.k?'active':''}" data-filtro="${o.k}">${o.l}</div>`
+  ).join('');
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{ filtroAtual = c.dataset.filtro; render(); };
+  });
+}
+function renderLista(){
+  const wrap = document.getElementById('listaWrap');
+  let lista = clientes.map(c=>({...c, _dias: diasEntre(c.vencimento), _status: statusDe(diasEntre(c.vencimento))}));
+
+  if(filtroAtual==='vencendo') lista = lista.filter(c=>c._status==='vencendo'||c._status==='hoje');
+  else if(filtroAtual!=='todos') lista = lista.filter(c=>c._status===filtroAtual);
+
+  if(termoBusca.trim()){
+    const t = termoBusca.toLowerCase();
+    lista = lista.filter(c=> c.nome.toLowerCase().includes(t) || c.app.toLowerCase().includes(t));
+  }
+  lista.sort((a,b)=>a._dias-b._dias);
+
+  if(lista.length===0){
+    wrap.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM12 8v5l3 2"/></svg>
+      <p><b>Nenhum cliente por aqui.</b></p>
+      <p>${clientes.length===0?'Cadastre seu primeiro cliente para começar a acompanhar os vencimentos.':'Nenhum resultado para esse filtro ou busca.'}</p>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div class="list">${lista.map(c=>{
+    const cor = corStatus(c._status);
+    const pct = Math.max(0, Math.min(100, (c._dias/(c.planoDias||30))*100));
+    return `
+    <div class="card" data-id="${c.id}">
+      <div class="ring" style="background:conic-gradient(${cor} ${pct}%, var(--border) 0);">
+        <div class="hole">
+          <b style="color:${cor}">${c._status==='vencido'?'−'+Math.abs(c._dias):c._dias}</b>
+          <small>dias</small>
+        </div>
+      </div>
+      <div class="info">
+        <p class="nome">${c.nome}</p>
+        <div class="meta">
+          <span class="badge app">${c.app}</span>
+          <span class="badge preco">${formatarReal(c.planoPreco)}</span>
+          <span class="badge status b-${c._status}">${labelStatus(c._status, c._dias)}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="iconbtn wa" data-action="wa" data-id="${c.id}" aria-label="Enviar WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.3A8.7 8.7 0 0012 4a8.7 8.7 0 00-7.6 13l-.9 3.3 3.4-.9A8.7 8.7 0 0012 20.7a8.7 8.7 0 006.2-14.9zm-5.6 13a7.2 7.2 0 01-3.7-1l-.3-.2-2.1.6.6-2-.2-.3a7.2 7.2 0 01 11.9-8.1 7.2 7.2 0 01-6.2 11zm4-5.4c-.2-.1-1.3-.6-1.5-.7-.2-.1-.3-.1-.5.1l-.6.8c-.1.2-.3.2-.5.1-1.2-.6-2-1.4-2.6-2.5-.1-.2 0-.3.1-.5l.4-.5c.1-.2.1-.3 0-.5l-.6-1.4c-.1-.3-.3-.3-.5-.3h-.4c-.2 0-.4.1-.6.3-.2.3-.8.9-.8 2 0 1.2 1 2.4 1.1 2.6.1.1 1.7 2.7 4.3 3.7 2 .8 2 .5 2.4.5.4 0 1.3-.5 1.4-1 .2-.5.2-1 .1-1.1z"/></svg>
+        </div>
+        <div class="iconbtn" data-action="renovar" data-id="${c.id}" aria-label="Renovar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 22v-6h6M3.5 9a9 9 0 0114.9-3.4L21 8M20.5 15a9 9 0 01-14.9 3.4L3 16"/></svg>
+        </div>
+        <div class="iconbtn" data-action="menu" data-id="${c.id}" aria-label="Mais opções">
+          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+
+  wrap.querySelectorAll('[data-action]').forEach(el=>{
+    el.onclick = ()=>{
+      const id = el.dataset.id;
+      const action = el.dataset.action;
+      const cliente = clientes.find(c=>c.id===id);
+      if(action==='wa') abrirWA(cliente);
+      else if(action==='renovar') abrirRenovar(cliente);
+      else if(action==='menu') abrirMenu(cliente);
+    };
+  });
+}
+document.getElementById('busca').addEventListener('input', e=>{
+  termoBusca = e.target.value;
+  renderLista();
+});
+
+/* ---------- FORM CLIENTE ---------- */
+function aplicarPlanoNoForm(valor, diasEl, precoEl, customWrapEl){
+  if(valor==='custom'){
+    customWrapEl.classList.remove('hidden');
+    diasEl.disabled = false; precoEl.disabled = false;
+    return null;
+  }
+  const p = planos.find(pl=>planoId(pl)===valor);
+  if(p){
+    diasEl.value = p.dias; precoEl.value = p.preco;
+    diasEl.disabled = true; precoEl.disabled = true;
+    customWrapEl.classList.remove('hidden');
+  }
+  return p;
+}
+
+function abrirForm(cliente){
+  editandoId = cliente ? cliente.id : null;
+  document.getElementById('formTitulo').textContent = cliente ? 'Editar cliente' : 'Novo cliente';
+  popularSelectApps(document.getElementById('fApp'));
+  popularSelectPlanos(document.getElementById('fPlano'));
+
+  const diasEl = document.getElementById('fDias');
+  const precoEl = document.getElementById('fPreco');
+  const customWrap = document.getElementById('fCustomWrap');
+
+  if(cliente){
+    document.getElementById('fNome').value = cliente.nome;
+    document.getElementById('fWhats').value = cliente.whatsapp;
+    const appSel = document.getElementById('fApp');
+    appSel.value = apps.includes(cliente.app) ? cliente.app : 'Outro';
+    document.getElementById('fAppCustom').value = appSel.value==='Outro' ? cliente.app : '';
+    document.getElementById('fAppCustomWrap').classList.toggle('hidden', appSel.value!=='Outro');
+
+    const match = planos.find(p=>p.nome===cliente.planoNome && p.dias===cliente.planoDias && p.preco===cliente.planoPreco && p.telas===cliente.planoTelas);
+    document.getElementById('fPlano').value = match ? planoId(match) : 'custom';
+    diasEl.value = cliente.planoDias;
+    precoEl.value = cliente.planoPreco;
+    diasEl.disabled = !!match; precoEl.disabled = !!match;
+    document.getElementById('fVenc').value = cliente.vencimento;
+  } else {
+    document.getElementById('fNome').value = '';
+    document.getElementById('fWhats').value = '';
+    document.getElementById('fApp').value = apps[0] || 'Outro';
+    document.getElementById('fAppCustomWrap').classList.add('hidden');
+    document.getElementById('fAppCustom').value = '';
+    if(planos.length){
+      document.getElementById('fPlano').value = planoId(planos[0]);
+      aplicarPlanoNoForm(planoId(planos[0]), diasEl, precoEl, customWrap);
+      document.getElementById('fVenc').value = somaDias(hojeISO(), planos[0].dias);
+    } else {
+      document.getElementById('fPlano').value = 'custom';
+      diasEl.value = 30; precoEl.value = 0;
+      document.getElementById('fVenc').value = somaDias(hojeISO(), 30);
+    }
+  }
+  document.getElementById('overlayForm').classList.add('show');
+}
+function fecharForm(){
+  document.getElementById('overlayForm').classList.remove('show');
+  editandoId = null;
+}
+document.getElementById('btnNovo').onclick = ()=>abrirForm(null);
+document.getElementById('btnCancelarForm').onclick = fecharForm;
+document.getElementById('fApp').addEventListener('change', e=>{
+  document.getElementById('fAppCustomWrap').classList.toggle('hidden', e.target.value!=='Outro');
+});
+document.getElementById('fPlano').addEventListener('change', e=>{
+  aplicarPlanoNoForm(e.target.value, document.getElementById('fDias'), document.getElementById('fPreco'), document.getElementById('fCustomWrap'));
+  const p = planos.find(pl=>planoId(pl)===e.target.value);
+  if(p) document.getElementById('fVenc').value = somaDias(hojeISO(), p.dias);
+});
+
+document.getElementById('btnSalvarForm').onclick = async ()=>{
+  const nome = document.getElementById('fNome').value.trim();
+  const whats = document.getElementById('fWhats').value.trim().replace(/\D/g,'');
+  let app = document.getElementById('fApp').value;
+  if(app==='Outro'){
+    const custom = document.getElementById('fAppCustom').value.trim();
+    if(!custom){ showToast('Digite o nome do app.'); return; }
+    app = custom;
+    if(!apps.includes(app)){ apps.push(app); await salvarApps(); }
+  }
+  const planoSel = document.getElementById('fPlano').value;
+  const planoMatch = planos.find(p=>planoId(p)===planoSel);
+  const planoNome = planoMatch ? planoMatch.nome : 'Personalizado';
+  const planoTelas = planoMatch ? planoMatch.telas : 1;
+  const planoDias = parseInt(document.getElementById('fDias').value, 10);
+  const planoPreco = parseFloat(document.getElementById('fPreco').value) || 0;
+  const vencimento = document.getElementById('fVenc').value;
+
+  if(!nome){ showToast('Digite o nome do cliente.'); return; }
+  if(!whats || whats.length<10){ showToast('Digite um WhatsApp válido com DDD.'); return; }
+  if(!vencimento){ showToast('Defina a data de vencimento.'); return; }
+
+  if(editandoId){
+    const c = clientes.find(c=>c.id===editandoId);
+    Object.assign(c, {nome, whatsapp:whats, app, planoNome, planoDias, planoPreco, planoTelas, vencimento});
+  } else {
+    clientes.push({
+      id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      nome, whatsapp:whats, app, planoNome, planoDias, planoPreco, planoTelas, vencimento,
+      criadoEm: hojeISO()
+    });
+  }
+  await salvarClientes();
+  fecharForm();
+  render();
+  showToast(editandoId ? 'Cliente atualizado.' : 'Cliente cadastrado.');
+};
+
+/* ---------- MENU / EXCLUIR ---------- */
+function abrirMenu(cliente){
+  const escolha = confirm(`${cliente.nome}\n\nOK = Editar cliente\nCancelar = Ver opção de excluir`);
+  if(escolha) abrirForm(cliente);
+  else abrirExcluir(cliente);
+}
+function abrirExcluir(cliente){
+  excluirClienteAtual = cliente;
+  document.getElementById('excluirNome').textContent = cliente.nome;
+  document.getElementById('overlayExcluir').classList.add('show');
+}
+document.getElementById('btnCancelarExcluir').onclick = ()=>{
+  document.getElementById('overlayExcluir').classList.remove('show');
+};
+document.getElementById('btnConfirmarExcluir').onclick = async ()=>{
+  clientes = clientes.filter(c=>c.id!==excluirClienteAtual.id);
+  await salvarClientes();
+  document.getElementById('overlayExcluir').classList.remove('show');
+  render();
+  showToast('Cliente excluído.');
+};
+
+/* ---------- WHATSAPP ---------- */
+function montarLinkWA(cliente, mensagem){
+  let n = cliente.whatsapp.replace(/\D/g,'');
+  if(n.length<=11) n = '55'+n;
+  return `https://wa.me/${n}?text=${encodeURIComponent(mensagem)}`;
+}
+function mensagens(cliente){
+  const dias = diasEntre(cliente.vencimento);
+  const dataF = formatarData(cliente.vencimento);
+  const primeiroNome = cliente.nome.trim().split(' ')[0];
+  return [
+    {titulo:'Aviso de vencimento próximo', sub:dias>=0?`Vence em ${dias} dia${dias===1?'':'s'}`:'Já venceu', cor:'var(--amber)',
+      texto:`Olá, ${primeiroNome}! 👋 Passando para avisar que seu plano de IPTV vence em *${dataF}*. Para garantir a renovação sem interrupção no acesso, é só me responder por aqui. 😉`},
+    {titulo:'Vence hoje', sub:dataF, cor:'var(--amber)',
+      texto:`Olá, ${primeiroNome}! Seu plano vence *hoje* (${dataF}). Para não perder o acesso, renove ainda hoje — me chama aqui que já deixo tudo certo. 🙏`},
+    {titulo:'Plano vencido', sub:`Venceu em ${dataF}`, cor:'var(--red)',
+      texto:`Olá, ${primeiroNome}! Seu plano venceu em *${dataF}* e o acesso foi suspenso. Quando puder renovar, me avisa que reativo rapidinho pra você. 🚀`},
+    {titulo:'Mensagem personalizada', sub:'Escrever a sua própria mensagem', cor:'var(--blue)', texto:null}
+  ];
+}
+function abrirWA(cliente){
+  const opts = mensagens(cliente);
+  document.getElementById('waOpts').innerHTML = opts.map((o,i)=>`
+    <div class="sheet-opt" data-idx="${i}">
+      <div class="sheet-icon" style="background:${o.cor}22;color:${o.cor}">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div class="sheet-txt"><b>${o.titulo}</b><span>${o.sub}</span></div>
+    </div>
+  `).join('');
+  document.querySelectorAll('#waOpts .sheet-opt').forEach(el=>{
+    el.onclick = ()=>{
+      const opt = opts[parseInt(el.dataset.idx,10)];
+      let texto = opt.texto;
+      if(texto===null){
+        texto = prompt('Digite a mensagem para '+cliente.nome+':', `Olá, ${cliente.nome.split(' ')[0]}! `);
+        if(texto===null) return;
+      }
+      window.open(montarLinkWA(cliente, texto), '_blank');
+      document.getElementById('overlayWA').classList.remove('show');
+    };
+  });
+  document.getElementById('overlayWA').classList.add('show');
+}
+document.getElementById('btnCancelarWA').onclick = ()=>{
+  document.getElementById('overlayWA').classList.remove('show');
+};
+
+/* ---------- RENOVAR ---------- */
+function abrirRenovar(cliente){
+  renovarClienteAtual = cliente;
+  document.getElementById('rNomeView').value = cliente.nome;
+  popularSelectPlanos(document.getElementById('rPlano'));
+  const diasEl = document.getElementById('rDias');
+  const precoEl = document.getElementById('rPreco');
+  const customWrap = document.getElementById('rCustomWrap');
+
+  const match = planos.find(p=>p.nome===cliente.planoNome && p.dias===cliente.planoDias && p.preco===cliente.planoPreco && p.telas===cliente.planoTelas);
+  document.getElementById('rPlano').value = match ? planoId(match) : 'custom';
+  diasEl.value = cliente.planoDias;
+  precoEl.value = cliente.planoPreco;
+  diasEl.disabled = !!match; precoEl.disabled = !!match;
+  atualizarRVenc();
+  document.getElementById('overlayRenovar').classList.add('show');
+}
+document.getElementById('rPlano').addEventListener('change', e=>{
+  aplicarPlanoNoForm(e.target.value, document.getElementById('rDias'), document.getElementById('rPreco'), document.getElementById('rCustomWrap'));
+  atualizarRVenc();
+});
+document.getElementById('rDias').addEventListener('input', atualizarRVenc);
+function atualizarRVenc(){
+  if(!renovarClienteAtual) return;
+  const dias = parseInt(document.getElementById('rDias').value, 10) || 0;
+  const vencAtual = renovarClienteAtual.vencimento;
+  const base = vencAtual > hojeISO() ? vencAtual : hojeISO();
+  document.getElementById('rVenc').value = somaDias(base, dias);
+}
+document.getElementById('btnCancelarRenovar').onclick = ()=>{
+  document.getElementById('overlayRenovar').classList.remove('show');
+};
+document.getElementById('btnConfirmarRenovar').onclick = async ()=>{
+  const planoSel = document.getElementById('rPlano').value;
+  const planoMatch = planos.find(p=>planoId(p)===planoSel);
+  const planoNome = planoMatch ? planoMatch.nome : 'Personalizado';
+  const planoTelas = planoMatch ? planoMatch.telas : (renovarClienteAtual.planoTelas||1);
+  const planoDias = parseInt(document.getElementById('rDias').value, 10);
+  const planoPreco = parseFloat(document.getElementById('rPreco').value) || 0;
+  const vencimento = document.getElementById('rVenc').value;
+  const c = clientes.find(c=>c.id===renovarClienteAtual.id);
+  Object.assign(c, {planoNome, planoDias, planoPreco, planoTelas, vencimento});
+  await salvarClientes();
+  document.getElementById('overlayRenovar').classList.remove('show');
+  render();
+  showToast('Renovação confirmada.');
+};
+
+/* ---------- CONFIG: APPS E PLANOS ---------- */
+document.getElementById('btnConfig').onclick = ()=>{
+  renderConfigApps();
+  renderConfigPlanos();
+  document.getElementById('overlayConfig').classList.add('show');
+};
+document.getElementById('btnFecharConfig').onclick = ()=>{
+  document.getElementById('overlayConfig').classList.remove('show');
+  render();
+};
+document.querySelectorAll('#overlayConfig .tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('#overlayConfig .tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('tabApps').classList.toggle('hidden', t.dataset.tab!=='apps');
+    document.getElementById('tabPlanos').classList.toggle('hidden', t.dataset.tab!=='planos');
+  };
+});
+function renderConfigApps(){
+  document.getElementById('listaAppsConfig').innerHTML = apps.map((a,i)=>`
+    <div class="mgmt-item">
+      <span class="nome">${a}</span>
+      <button class="mgmt-del" data-i="${i}" aria-label="Remover">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`).join('') || `<p style="color:var(--muted);font-size:13px;">Nenhum app cadastrado.</p>`;
+  document.querySelectorAll('#listaAppsConfig .mgmt-del').forEach(b=>{
+    b.onclick = async ()=>{
+      apps.splice(parseInt(b.dataset.i,10),1);
+      await salvarApps();
+      renderConfigApps();
+      showToast('App removido.');
+    };
+  });
+}
+document.getElementById('btnAddApp').onclick = async ()=>{
+  const input = document.getElementById('novoAppNome');
+  const nome = input.value.trim();
+  if(!nome){ showToast('Digite o nome do app.'); return; }
+  if(apps.includes(nome)){ showToast('Esse app já existe.'); return; }
+  apps.push(nome);
+  await salvarApps();
+  input.value = '';
+  renderConfigApps();
+  showToast('App adicionado.');
+};
+function renderConfigPlanos(){
+  document.getElementById('listaPlanosConfig').innerHTML = planos.map((p,i)=>`
+    <div class="mgmt-item">
+      <div>
+        <div class="nome">${p.nome} · ${p.telas===2?'2 telas':'1 tela'}</div>
+        <div class="sub">${p.dias} dias · ${formatarReal(p.preco)}</div>
+      </div>
+      <button class="mgmt-del" data-i="${i}" aria-label="Remover">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>`).join('') || `<p style="color:var(--muted);font-size:13px;">Nenhum plano cadastrado.</p>`;
+  document.querySelectorAll('#listaPlanosConfig .mgmt-del').forEach(b=>{
+    b.onclick = async ()=>{
+      planos.splice(parseInt(b.dataset.i,10),1);
+      await salvarPlanos();
+      renderConfigPlanos();
+      showToast('Plano removido.');
+    };
+  });
+}
+document.getElementById('btnAddPlano').onclick = async ()=>{
+  const nome = document.getElementById('novoPlanoNome').value.trim();
+  const dias = parseInt(document.getElementById('novoPlanoDias').value, 10);
+  const preco = parseFloat(document.getElementById('novoPlanoPreco').value);
+  const telas = parseInt(document.getElementById('novoPlanoTelas').value, 10);
+  if(!nome || !dias || isNaN(preco)){ showToast('Preencha todos os campos do plano.'); return; }
+  planos.push({nome, dias, preco, telas});
+  await salvarPlanos();
+  document.getElementById('novoPlanoNome').value = '';
+  document.getElementById('novoPlanoDias').value = 30;
+  document.getElementById('novoPlanoPreco').value = 0;
+  renderConfigPlanos();
+  showToast('Plano adicionado.');
+};
+
+carregarDados();
+</script>
+</body>
+</html>
